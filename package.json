@@ -1,0 +1,25 @@
+{
+  "name": "moleculer-files-gridfs",
+  "version": "0.0.1",
+  "description": "GridFS driver for moleculer-files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "moleculer",
+    "moleculer-files",
+    "filesystem"
+  ],
+  "author": "Daniele Draganti",
+  "license": "MIT",
+  "dependencies": {
+    "gridfs-stream": "^1.1.1",
+    "mime-types": "^2.1.24",
+    "mongodb": "^3.3.2",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "moleculer": "^0.13.10"
+  }
+}
