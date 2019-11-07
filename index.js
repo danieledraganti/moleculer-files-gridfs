@@ -59,7 +59,7 @@ class FSAdapter {
 	}
 
   findById(fd) {
-	  const stream = this.grid.createReadStream({_id: fd, root: this.collection});
+	  const stream = this.grid.createReadStream({_id: fd, root: this.bucketName});
 
 	  return new Promise((resolve, reject) => {
   	  stream.on('open', () => resolve(stream));
@@ -79,7 +79,7 @@ class FSAdapter {
 
   	return new Promise(async (resolve, reject) => {
 
-  		const stream = this.grid.createWriteStream({_id: meta.id, content_type: contentType, filename, root: this.collection, metadata: meta});
+  		const stream = this.grid.createWriteStream({_id: meta.id, content_type: contentType, filename, root: this.bucketName, metadata: meta});
       entity.pipe(stream);
       stream.on('finish', () => resolve(stream));
     });
