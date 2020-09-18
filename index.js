@@ -59,7 +59,7 @@ class FSAdapter {
 	}
 
   findById(fd) {
-	  const stream = this.grid.createReadStream({_id: fd, root: this.bucketName});
+	  const stream = this.grid.createReadStream({filename: fd, root: this.bucketName});
 
 	  return new Promise((resolve, reject) => {
   	  stream.on('open', () => resolve(stream));
@@ -79,7 +79,7 @@ class FSAdapter {
 
   	return new Promise(async (resolve, reject) => {
 
-  		const stream = this.grid.createWriteStream({_id: meta.id, content_type: contentType, filename, root: this.bucketName, metadata: meta});
+  		const stream = this.grid.createWriteStream({filename, content_type: contentType, root: this.bucketName, metadata: meta});
       entity.pipe(stream);
       stream.on('finish', () => resolve(stream));
     });
@@ -95,7 +95,7 @@ class FSAdapter {
 
   removeById(_id) {
   	return new Promise((resolve, reject) => {
-    	this.grid.remove({_id}, (err, gs) => {
+    	this.grid.remove({filename}, (err, gs) => {
       	if (err) return reject(err);
       	return({id: _id});
     	})
