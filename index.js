@@ -30,7 +30,7 @@ class FSAdapter {
 	}
 
 	async connect() {
-    this.client = new MongoClient(this.uri, this.opts);
+    this.client = new MongoClient(this.uri, Object.assign({useUnifiedTopology : true}, this.opts));
 		return this.client.connect().then(() => {
 			this.db = this.client.db(this.dbName);
 			this.grid = new Grid(this.db, Mongo);
