@@ -6,12 +6,9 @@ const mime = require("mime-types");
 const uuidv4 = require("uuid/v4");
 const fs = require("fs");
 const isStream = require("is-stream");
-const { Readable } = require("stream");
 const { MoleculerError, ServiceSchemaError } = require("moleculer").Errors;
 
 const MongoClient = Mongo.MongoClient;
-const ObjectID = Mongo.ObjectID;
-const Bucket = Mongo.GridFSBucket;
 
 class FSAdapter {
   constructor(uri, opts, dbName) {
@@ -38,12 +35,9 @@ class FSAdapter {
       this.db = this.client.db(this.dbName);
       this.grid = new Grid(this.db, Mongo);
 
-      let options = {};
-      options.bucketName = this.bucketName;
-      console.log('options bucketfs', options)
-
-      this.bucketFS = new Mongo.GridFSBucket(this.db, options);
-      console.log('bucketFS', this.bucketFS)
+      this.bucketFS = new Mongo.GridFSBucket(this.db, {
+        bucketName: this.bucketName,
+      });
 
       this.service.logger.info("GridFS adapter has connected successfully.");
 
@@ -66,22 +60,15 @@ class FSAdapter {
 
   async find(filters) {
     // { $regex: /m/i }
-    console.log("findall with root");
-    console.log("grid files", this.grid.files);
-    if (!filters?.root) {
-      filters.root = this.bucketName;
+    console.log("bucket find filters", filters);
+    try {
+      let files = await this.bucketFS.find().toArray();
+      console.log("bucket find files", files);
+      return files;
+    } catch (error) {
+      console.log("bucket find error", error);
+      return error;
     }
-    return new Promise((resolve, reject) => {
-      this.grid.files
-        .find({ root: this.bucketName })
-        .toArray(function (err, files) {
-          if (err || !files) {
-            reject(err);
-          } else {
-            resolve(files);
-          }
-        });
-    });
   }
 
   findOne(query) {
@@ -107,24 +94,26 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    console.log("save", entity);
-    console.log("meta", meta);
-    console.log("bucketName", this.bucketName);
+    return new Promise((resolve, reject) => {
+      if (!isStream(entity)) reject("Entity is not a stream");
 
-    if (!isStream(entity)) return { error: "Entity is not a stream" };
+      const filename = meta.id || meta.filename || uuidv4();
+      const contentType = meta.contentType || mime.lookup(filename);
 
-    // let uploadStream = this.bucketFS.openUploadStream(trackName, {chunkSizeBytes:null, metadata:{speaker: "Bill Gates", duration:"1hr"}, contentType: null, aliases: null});
-
-    let stream = this.bucketFS.openUploadStream(meta.filename)
-    entity.pipe(stream)
-      .on("error", function (error) {
-        console.log('error openupload', error);
-        return error
-      })
-      .on("finish", function () {
-        console.log("done!");
-        return true
+      let stream = this.bucketFS.openUploadStream(meta.filename, {
+        metadata: meta,
+        contentType: contentType,
       });
+
+      entity
+        .pipe(stream)
+        .on("error", function (error) {
+          reject(error);
+        })
+        .on("finish", function (response) {
+          resolve(response);
+        });
+    });
   }
 
   async updateById(entity, meta) {
