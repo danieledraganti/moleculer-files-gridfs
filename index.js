@@ -96,10 +96,8 @@ class FSAdapter {
       const filename = meta.id || meta.filename || uuidv4();
       const contentType = meta.contentType || mime.lookup(filename);
 
-      console.log('meta', meta)
-      if( meta?.$multipart ){
-        console.log('true delete')
-        delete metadata.$multipart;
+      if (meta?.$multipart) {
+        delete meta.$multipart;
       }
 
       let stream = this.bucketFS.openUploadStream(meta.filename, {
