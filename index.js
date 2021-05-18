@@ -60,7 +60,7 @@ class FSAdapter {
 
   async find(filters) {
     try {
-      let files = await this.bucketFS.find({ filename: { $regex: /V/ } }).toArray();
+      let files = await this.bucketFS.find(filters).toArray();
       return files;
     } catch (error) {
       return error;
@@ -97,6 +97,10 @@ class FSAdapter {
       const contentType = meta.contentType || mime.lookup(filename);
 
       console.log('meta', meta)
+      if( meta?.$multipart ){
+        console.log('true delete')
+        delete metadata.$multipart;
+      }
 
       let stream = this.bucketFS.openUploadStream(meta.filename, {
         metadata: meta,
