@@ -59,14 +59,10 @@ class FSAdapter {
   }
 
   async find(filters) {
-    // { $regex: /m/i }
-    console.log("bucket find filters", filters);
     try {
-      let files = await this.bucketFS.find().toArray();
-      console.log("bucket find files", files);
+      let files = await this.bucketFS.find({ filename: { $regex: /V/ } }).toArray();
       return files;
     } catch (error) {
-      console.log("bucket find error", error);
       return error;
     }
   }
