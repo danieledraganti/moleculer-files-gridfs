@@ -110,7 +110,13 @@ class FSAdapter {
     console.log("save", entity);
     console.log("meta", meta);
     console.log("bucketName", this.bucketName);
-    pipe(this.bucketFS.openUploadStream(entity))
+
+    if (!isStream(entity)) return { error: "Entity is not a stream" };
+
+    // let uploadStream = this.bucketFS.openUploadStream(trackName, {chunkSizeBytes:null, metadata:{speaker: "Bill Gates", duration:"1hr"}, contentType: null, aliases: null});
+
+    let stream = this.bucketFS.openUploadStream(entity)
+    entity.pipe(stream)
       .on("error", function (error) {
         console.log('error openupload', error);
         return error
