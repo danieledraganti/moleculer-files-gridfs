@@ -101,8 +101,7 @@ class FSAdapter {
       const contentType = meta.contentType || mime.lookup(filename);
 
       let stream = this.bucketFS.openUploadStream(meta.filename, {
-        metadata: meta,
-        contentType: contentType,
+        contentType: contentType
       });
 
       entity
