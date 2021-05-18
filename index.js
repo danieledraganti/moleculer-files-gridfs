@@ -100,7 +100,10 @@ class FSAdapter {
       const filename = meta.id || meta.filename || uuidv4();
       const contentType = meta.contentType || mime.lookup(filename);
 
+      console.log('meta', meta)
+
       let stream = this.bucketFS.openUploadStream(meta.filename, {
+        metadata: meta,
         contentType: contentType
       });
 
