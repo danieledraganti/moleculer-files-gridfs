@@ -73,14 +73,15 @@ class FSAdapter {
   }
 
   findById(fd) {
-    const stream = this.grid.createReadStream({
-      filename: fd,
-      root: this.bucketName,
-    });
-
+    let stream = this.bucketFS.openDownloadStreamByName(fd);
     return new Promise((resolve, reject) => {
-      stream.on("open", () => resolve(stream));
-      stream.on("error", (err) => resolve(null));
+      stream
+        .on("error", function (error) {
+          reject(error);
+        })
+        .on("finish", function () {
+          resolve(stream);
+        });
     });
   }
 
@@ -102,7 +103,7 @@ class FSAdapter {
 
       let stream = this.bucketFS.openUploadStream(meta.filename, {
         metadata: meta,
-        contentType: contentType
+        contentType: contentType,
       });
 
       entity
@@ -125,12 +126,7 @@ class FSAdapter {
   }
 
   removeById(_id) {
-    return new Promise((resolve, reject) => {
-      this.grid.remove({ filename }, (err, gs) => {
-        if (err) return reject(err);
-        return { id: _id };
-      });
-    });
+    return this.bucketFS.delete(_id);
   }
 
   clear() {
