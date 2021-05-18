@@ -38,6 +38,13 @@ class FSAdapter {
       this.db = this.client.db(this.dbName);
       this.grid = new Grid(this.db, Mongo);
 
+      let options = {};
+      options.bucketName = this.bucketName;
+      console.log('options bucketfs', options)
+
+      this.bucketFS = new Mongo.GridFSBucket(this.db, options);
+      console.log('bucketFS', this.bucketFS)
+
       this.service.logger.info("GridFS adapter has connected successfully.");
 
       /* istanbul ignore next */
@@ -100,32 +107,18 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    return new Promise(async (resolve, reject) => {
-      console.log("save", entity);
-      console.log("meta", meta);
-      console.log("bucketName", this.bucketName);
-      try {
-        if (!isStream(entity)) return { error: "Entity is not a stream" };
-
-        const filename = meta.id || uuidv4();
-        const contentType = meta.contentType || mime.lookup(meta.id);
-
-        const stream = this.grid.createWriteStream({
-          filename,
-          content_type: contentType,
-          root: this.bucketName,
-          metadata: meta,
-        });
-        entity.pipe(stream);
-        stream.on("finish", function () {
-          // do something with `file`
-          resolve(stream);
-        });
-        stream.on("error", (err) => reject(err));
-      } catch (error) {
-        reject(error);
-      }
-    });
+    console.log("save", entity);
+    console.log("meta", meta);
+    console.log("bucketName", this.bucketName);
+    pipe(this.bucketFS.openUploadStream(entity))
+      .on("error", function (error) {
+        console.log('error openupload', error);
+        return error
+      })
+      .on("finish", function () {
+        console.log("done!");
+        return true
+      });
   }
 
   async updateById(entity, meta) {
