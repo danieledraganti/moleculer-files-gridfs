@@ -115,7 +115,7 @@ class FSAdapter {
 
     // let uploadStream = this.bucketFS.openUploadStream(trackName, {chunkSizeBytes:null, metadata:{speaker: "Bill Gates", duration:"1hr"}, contentType: null, aliases: null});
 
-    let stream = this.bucketFS.openUploadStream(entity)
+    let stream = this.bucketFS.openUploadStream(meta.filename)
     entity.pipe(stream)
       .on("error", function (error) {
         console.log('error openupload', error);
