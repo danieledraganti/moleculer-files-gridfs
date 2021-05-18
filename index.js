@@ -117,10 +117,9 @@ class FSAdapter {
           metadata: meta,
         });
         entity.pipe(stream);
-        stream.on("close", function (file) {
+        stream.on("finish", function () {
           // do something with `file`
-          console.log("close event", file.filename);
-          resolve(file);
+          resolve(stream);
         });
         stream.on("error", (err) => reject(err));
       } catch (error) {
