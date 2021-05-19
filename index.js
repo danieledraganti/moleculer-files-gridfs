@@ -84,8 +84,9 @@ class FSAdapter {
           console.log('error stream', error)
           reject(error);
         })
-        .on("finish", function () {
-          console.log('finish stream', finish)
+        .on("data", function (data) {
+          console.log('data data', data)
+          console.log('data stream', stream)
           resolve(stream);
         });
     });
