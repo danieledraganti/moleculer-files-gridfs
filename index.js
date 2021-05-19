@@ -117,18 +117,10 @@ class FSAdapter {
     // To Be Implemented.
   }
 
-  removeById(id) {
-    console.log('remove this id', id)
-    // Transform into objectid
-    let objID
-    try {
-      objID = new ObjectId(id); // wrap in ObjectID
-      console.log('remove this id after transform', objID)
-    } catch (error) {
-      console.log('error objectid', error)
-    }
-
-    return this.bucketFS.delete(objID);
+  async removeById(_id) {
+    _id = new ObjectId(_id);
+    this.bucketFS.delete(_id);
+    return { id: _id };
   }
 
   clear() {
