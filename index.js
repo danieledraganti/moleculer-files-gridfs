@@ -59,7 +59,6 @@ class FSAdapter {
   }
 
   async find(filters) {
-    console.log('filters test', filters)
     try {
       let files = await this.bucketFS.find(filters).toArray();
       return files;
@@ -75,18 +74,22 @@ class FSAdapter {
 
   findById(fd) {
     console.log('find by id test', fd)
-    let stream = this.bucketFS.openDownloadStreamByName(fd);
+
+    let stream = fs.createReadStream(fd)
+    let downloadstream = this.bucketFS.openDownloadStreamByName(fd);
 
     console.log('find by id stream', stream)
+    console.log('find by id downloadstream', downloadstream)
+
+    stream.pipe(downloadstream);
+
     return new Promise((resolve, reject) => {
       stream
         .on("error", function (error) {
           console.log('error stream', error)
           reject(error);
         })
-        .on("data", function (data) {
-          console.log('data data', data)
-          console.log('data stream', stream)
+        .on("finish", function () {
           resolve(stream);
         });
     });
@@ -132,8 +135,9 @@ class FSAdapter {
     // To Be Implemented.
   }
 
-  removeById(_id) {
-    return this.bucketFS.delete(_id);
+  removeById(id) {
+    console.log('remove this id', id)
+    return this.bucketFS.delete(id);
   }
 
   clear() {
