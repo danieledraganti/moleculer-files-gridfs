@@ -1,6 +1,7 @@
 "use strict";
 
 const Mongo = require("mongodb");
+const ObjectId = require('mongodb').ObjectId;
 var Grid = require("gridfs-stream");
 const mime = require("mime-types");
 const uuidv4 = require("uuid/v4");
@@ -73,8 +74,6 @@ class FSAdapter {
   }
 
   findById(fd) {
-    console.log('find by id test', fd)
-
     return this.bucketFS.openDownloadStreamByName(fd);
   }
 
@@ -120,7 +119,16 @@ class FSAdapter {
 
   removeById(id) {
     console.log('remove this id', id)
-    return this.bucketFS.delete(id);
+    // Transform into objectid
+
+    try {
+      let objID = new ObjectId(id); // wrap in ObjectID
+      console.log('remove this id after transform', objID)
+    } catch (error) {
+      console.log('error objectid', error)
+    }
+
+    return this.bucketFS.delete(objID);
   }
 
   clear() {
