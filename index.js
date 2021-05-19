@@ -120,9 +120,9 @@ class FSAdapter {
   removeById(id) {
     console.log('remove this id', id)
     // Transform into objectid
-
+    let objID
     try {
-      let objID = new ObjectId(id); // wrap in ObjectID
+      objID = new ObjectId(id); // wrap in ObjectID
       console.log('remove this id after transform', objID)
     } catch (error) {
       console.log('error objectid', error)
