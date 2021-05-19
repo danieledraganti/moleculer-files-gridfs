@@ -59,6 +59,7 @@ class FSAdapter {
   }
 
   async find(filters) {
+    console.log('filters test', filters)
     try {
       let files = await this.bucketFS.find(filters).toArray();
       return files;
@@ -73,13 +74,18 @@ class FSAdapter {
   }
 
   findById(fd) {
+    console.log('find by id test', fd)
     let stream = this.bucketFS.openDownloadStreamByName(fd);
+
+    console.log('find by id stream', stream)
     return new Promise((resolve, reject) => {
       stream
         .on("error", function (error) {
+          console.log('error stream', error)
           reject(error);
         })
         .on("finish", function () {
+          console.log('finish stream', finish)
           resolve(stream);
         });
     });
