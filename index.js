@@ -1,8 +1,7 @@
 "use strict";
 
 const Mongo = require("mongodb");
-const ObjectId = require('mongodb').ObjectId;
-var Grid = require("gridfs-stream");
+const ObjectId = require("mongodb").ObjectId;
 const mime = require("mime-types");
 const uuidv4 = require("uuid/v4");
 const fs = require("fs");
@@ -34,7 +33,6 @@ class FSAdapter {
     );
     return this.client.connect().then(() => {
       this.db = this.client.db(this.dbName);
-      this.grid = new Grid(this.db, Mongo);
 
       this.bucketFS = new Mongo.GridFSBucket(this.db, {
         bucketName: this.bucketName,
@@ -61,8 +59,7 @@ class FSAdapter {
 
   async find(filters) {
     try {
-      let files = await this.bucketFS.find(filters).toArray();
-      return files;
+      return await this.bucketFS.find(filters).toArray();
     } catch (error) {
       return error;
     }
