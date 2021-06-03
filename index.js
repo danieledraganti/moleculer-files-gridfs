@@ -104,15 +104,17 @@ class FSAdapter {
         meta.version = "1"
       }
     } catch (error) {
+      console.log('upload error', error)
       return error;
     }
+    console.log('meta', meta)
 
     let stream = this.bucketFS.openUploadStream(meta.filename, {
       metadata: meta,
       contentType: contentType,
     });
 
-    await entity
+    return await entity
       .pipe(stream)
       .on("error", function (error) {
         return error;
