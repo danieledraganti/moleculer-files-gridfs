@@ -94,9 +94,8 @@ class FSAdapter {
       let file = await this.bucketFS.find({filename: filename}).sort( { "metadata.version": -1 } ).toArray();
       // Get file latest version and increment to new file
       if( file.length > 0 && file[0].metadata ){
-        let data = JSON.parse(file[0].metadata)
-        if( data.version )
-          meta.version = parseInt( (parseInt(data.version) || 0) + 1 )
+        if( file[0].metadata.version )
+          meta.version = parseInt( (parseInt(file[0].metadata.version) || 0) + 1 )
         else
           meta.version = "1"
       }
