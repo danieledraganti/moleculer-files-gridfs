@@ -80,30 +80,39 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    return new Promise((resolve, reject) => {
-      if (!isStream(entity)) reject("Entity is not a stream");
+    if (!isStream(entity)) reject("Entity is not a stream");
 
-      const filename = meta.id || meta.filename || uuidv4();
-      const contentType = meta.contentType || mime.lookup(filename);
+    const filename = meta.id || meta.filename || uuidv4();
+    const contentType = meta.contentType || mime.lookup(filename);
 
-      if (meta?.$multipart) {
-        delete meta.$multipart;
+    if (meta?.$multipart) {
+      delete meta.$multipart;
+    }
+
+    // If filename exists - version it
+    try {
+      meta.version = "1"
+      let file = await this.bucketFS.find({filename: filename}).sort( { "metadata.version": -1 } ).toArray();
+      // Get file latest version and increment to new file
+      if( file.length > 0 && file[0].metadata ){
+        if( file[0].metadata.version )
+          meta.version = String( (parseInt(file[0].metadata.version) || 0) + 1 )
       }
+    } catch (error) {}
 
-      let stream = this.bucketFS.openUploadStream(meta.filename, {
-        metadata: meta,
-        contentType: contentType,
-      });
-
-      entity
-        .pipe(stream)
-        .on("error", function (error) {
-          reject(error);
-        })
-        .on("finish", function (response) {
-          resolve(response);
-        });
+    let stream = this.bucketFS.openUploadStream(meta.filename, {
+      metadata: meta,
+      contentType: contentType,
     });
+
+    return await entity
+      .pipe(stream)
+      .on("error", function (error) {
+        return error;
+      })
+      .on("finish", function (response) {
+        return response;
+      });
   }
 
   async updateById(entity, meta) {
