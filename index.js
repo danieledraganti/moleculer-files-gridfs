@@ -84,7 +84,7 @@ class FSAdapter {
 
     const filename = meta.id || meta.filename || uuidv4();
     const contentType = meta.contentType || mime.lookup(filename);
-    meta.version == "1"
+    meta.version = "1"
 
     if (meta?.$multipart) {
       delete meta.$multipart;
