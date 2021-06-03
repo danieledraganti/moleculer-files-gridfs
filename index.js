@@ -95,7 +95,7 @@ class FSAdapter {
       // Get file latest version and increment to new file
       if( file.length > 0 && file[0].metadata ){
         if( file[0].metadata.version )
-          meta.version = parseInt( (parseInt(file[0].metadata.version) || 0) + 1 )
+          meta.version = String( (parseInt(file[0].metadata.version) || 0) + 1 )
         else
           meta.version = "1"
       }
