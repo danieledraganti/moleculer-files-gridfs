@@ -80,44 +80,42 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    return new Promise((resolve, reject) => {
-      if (!isStream(entity)) reject("Entity is not a stream");
+    if (!isStream(entity)) reject("Entity is not a stream");
 
-      const filename = meta.id || meta.filename || uuidv4();
-      const contentType = meta.contentType || mime.lookup(filename);
+    const filename = meta.id || meta.filename || uuidv4();
+    const contentType = meta.contentType || mime.lookup(filename);
 
-      if (meta?.$multipart) {
-        delete meta.$multipart;
+    if (meta?.$multipart) {
+      delete meta.$multipart;
+    }
+
+    // If filename exists - version it
+    try {
+      let file = await this.bucketFS.find({filename: filename}).sort( { "metadata.version": -1 } ).toArray();
+      if( file.length > 0 ){
+        // Get file latest version and increment to new file
+        meta.version = (parseInt(file[0].version) || 0) + 1
       }
-
-      // If filename exists - version it
-      try {
-        let file = await this.bucketFS.find({filename: filename}).sort( { "metadata.version": -1 } ).toArray();
-        if( file.length > 0 ){
-          // Get file latest version and increment to new file
-          meta.version = (parseInt(file[0].version) || 0) + 1
-        }
-        else{
-          meta.version = 1
-        }
-      } catch (error) {
-        return error;
+      else{
+        meta.version = 1
       }
+    } catch (error) {
+      return error;
+    }
 
-      let stream = this.bucketFS.openUploadStream(meta.filename, {
-        metadata: meta,
-        contentType: contentType,
-      });
-
-      entity
-        .pipe(stream)
-        .on("error", function (error) {
-          reject(error);
-        })
-        .on("finish", function (response) {
-          resolve(response);
-        });
+    let stream = this.bucketFS.openUploadStream(meta.filename, {
+      metadata: meta,
+      contentType: contentType,
     });
+
+    await entity
+      .pipe(stream)
+      .on("error", function (error) {
+        return error;
+      })
+      .on("finish", function (response) {
+        return response;
+      });
   }
 
   async updateById(entity, meta) {
