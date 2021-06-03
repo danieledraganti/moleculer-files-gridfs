@@ -59,7 +59,7 @@ class FSAdapter {
 
   async find(filters) {
     try {
-      return await this.bucketFS.find(filters).toArray();
+      return await this.bucketFS.find(filters).sort( { "metadata.version": -1 } ).toArray();
     } catch (error) {
       return error;
     }
