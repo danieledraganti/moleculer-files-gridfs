@@ -84,7 +84,6 @@ class FSAdapter {
 
     const filename = meta.id || meta.filename || uuidv4();
     const contentType = meta.contentType || mime.lookup(filename);
-    meta.version = "1"
 
     if (meta?.$multipart) {
       delete meta.$multipart;
@@ -92,6 +91,7 @@ class FSAdapter {
 
     // If filename exists - version it
     try {
+      meta.version = "1"
       let file = await this.bucketFS.find({filename: filename}).sort( { "metadata.version": -1 } ).toArray();
       // Get file latest version and increment to new file
       if( file.length > 0 && file[0].metadata ){
