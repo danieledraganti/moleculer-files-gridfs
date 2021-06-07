@@ -74,7 +74,6 @@ class FSAdapter {
     return new Promise(async (resolve, reject) => {
       try {
         const file = await this.bucketFS.find({filename: fd}).sort( { "metadata.version": -1 } ).toArray();
-        console.log('file resp', file)
         if( file.length > 0 )
           resolve(this.bucketFS.openDownloadStreamByName(fd))
         else
