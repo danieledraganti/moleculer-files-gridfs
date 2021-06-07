@@ -71,6 +71,7 @@ class FSAdapter {
   }
 
   findById(fd) {
+    console.log('findbyid', id)
     new Promise(async (resolve, reject) => {
       try {
         const downloadStream = this.bucketFS.openDownloadStreamByName(fd);
