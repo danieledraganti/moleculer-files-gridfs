@@ -77,7 +77,7 @@ class FSAdapter {
         if( file.length > 0 )
           resolve(this.bucketFS.openDownloadStreamByName(fd));
         else
-          reject(new MoleculerError({code: 404, message: "FileNotFound"}));
+          reject(new MoleculerError("CAD file not found", 404, "ERR_NOT_FOUND"));
       } catch (error) {
         reject(error);
       }
@@ -90,7 +90,7 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    if (!isStream(entity)) throw new Error({code: 400, message: "Entity is not a stream"});
+    if (!isStream(entity)) throw new MoleculerError("Entity is not a stream", 400, "E_BAD_REQUEST");
 
     const filename = meta.id || meta.filename || uuidv4();
     const contentType = meta.contentType || mime.lookup(filename);
