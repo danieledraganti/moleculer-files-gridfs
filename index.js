@@ -71,7 +71,6 @@ class FSAdapter {
   }
 
   findById(fd) {
-    console.log('findbyid', fd)
     new Promise(async (resolve, reject) => {
       try {
         const downloadStream = this.bucketFS.openDownloadStreamByName(fd);
@@ -80,11 +79,9 @@ class FSAdapter {
             reject(error)
           })
           .on('end', () => {
-            console.log('download files gridfs', downloadStream)
             resolve(downloadStream)
           });
       } catch (error) {
-        console.log('error files gridfs', error)
         reject(error)
       }
     })
