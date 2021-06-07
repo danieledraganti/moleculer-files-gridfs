@@ -78,7 +78,7 @@ class FSAdapter {
         if( file.length > 0 )
           resolve(this.bucketFS.openDownloadStreamByName(fd))
         else
-          reject ({"FileNotFound", 404, "ERR_NOT_FOUND"})
+          reject({code: 404, message:"FileNotFound"})
       } catch (error) {
         reject(error)
       }
