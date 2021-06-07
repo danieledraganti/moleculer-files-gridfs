@@ -71,7 +71,22 @@ class FSAdapter {
   }
 
   findById(fd) {
-    return this.bucketFS.openDownloadStreamByName(fd);
+    new Promise(async (resolve, reject) => {
+      try {
+        const downloadStream = this.bucketFS.openDownloadStreamByName(fd);
+         downloadStream
+          .on('error', (error) => {
+            reject(error)
+          })
+          .on('end', () => {
+            console.log('download files gridfs', downloadStream)
+            resolve(downloadStream)
+          });
+      } catch (error) {
+        console.log('error files gridfs', error)
+        reject(error)
+      }
+    })
   }
 
   async count(filters = {}) {
