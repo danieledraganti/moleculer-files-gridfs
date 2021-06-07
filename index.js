@@ -75,11 +75,11 @@ class FSAdapter {
       try {
         const file = await this.bucketFS.find({filename: fd}).sort( { "metadata.version": -1 } ).toArray();
         if( file.length > 0 )
-          resolve(this.bucketFS.openDownloadStreamByName(fd))
+          resolve(this.bucketFS.openDownloadStreamByName(fd));
         else
-          reject({code: 404, message:"FileNotFound"})
+          reject(new MoleculerError({code: 404, message: "FileNotFound"}));
       } catch (error) {
-        reject(error)
+        reject(error);
       }
     })
   }
@@ -90,7 +90,7 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    if (!isStream(entity)) reject("Entity is not a stream");
+    if (!isStream(entity)) throw new Error({code: 400, message: "Entity is not a stream"});
 
     const filename = meta.id || meta.filename || uuidv4();
     const contentType = meta.contentType || mime.lookup(filename);
