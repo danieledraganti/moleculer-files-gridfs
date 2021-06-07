@@ -71,16 +71,14 @@ class FSAdapter {
   }
 
   findById(fd) {
-    new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const downloadStream = this.bucketFS.openDownloadStreamByName(fd);
-         downloadStream
-          .on('error', (error) => {
-            reject(error)
-          })
-          .on('end', () => {
-            resolve(downloadStream)
-          });
+        const file = await this.bucketFS.find({filename: fd}).sort( { "metadata.version": -1 } ).toArray();
+        console.log('file resp', file)
+        if( file.length > 0 )
+          resolve(this.bucketFS.openDownloadStreamByName(fd))
+        else
+          reject ({"FileNotFound", 404, "ERR_NOT_FOUND"})
       } catch (error) {
         reject(error)
       }
