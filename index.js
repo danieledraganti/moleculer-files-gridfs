@@ -90,7 +90,7 @@ class FSAdapter {
   }
 
   async save(entity, meta) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
       if (!isStream(entity)) reject(new MoleculerError("Entity is not a stream", 400, "E_BAD_REQUEST"));
 
       const filename = meta.id || meta.filename || uuidv4();
