@@ -11,7 +11,7 @@ const { MoleculerError, ServiceSchemaError } = require("moleculer").Errors;
 const MongoClient = Mongo.MongoClient;
 
 class FSAdapter {
-  constructor(uri, opts, dbName) {
+  constructor(uri, opts) {
     this.uri = uri;
     this.opts = opts;
   }
