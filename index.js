@@ -4,7 +4,6 @@ const Mongo = require("mongodb");
 const ObjectId = require("mongodb").ObjectId;
 const mime = require("mime-types");
 const uuidv4 = require("uuid/v4");
-const fs = require("fs");
 const isStream = require("is-stream");
 const { MoleculerError, ServiceSchemaError } = require("moleculer").Errors;
 
@@ -77,7 +76,7 @@ class FSAdapter {
         if( file.length > 0 )
           resolve(this.bucketFS.openDownloadStreamByName(fd));
         else
-          reject(new MoleculerError("CAD file not found", 404, "ERR_NOT_FOUND"));
+          reject(new MoleculerError("File not found", 404, "ERR_NOT_FOUND"));
       } catch (error) {
         reject(error);
       }
