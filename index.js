@@ -1,149 +1,120 @@
 "use strict";
-
-const Mongo = require("mongodb");
-const ObjectId = require("mongodb").ObjectId;
-const mime = require("mime-types");
-const uuidv4 = require("uuid/v4");
-const isStream = require("is-stream");
-const { MoleculerError, ServiceSchemaError } = require("moleculer").Errors;
-
-const MongoClient = Mongo.MongoClient;
-
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongodb_1 = require("mongodb");
+const mime_types_1 = __importDefault(require("mime-types"));
+const uuid_1 = require("uuid");
+const is_stream_1 = __importDefault(require("is-stream"));
+const moleculer_1 = require("moleculer");
+const promises_1 = require("node:stream/promises");
+const { MoleculerError, ServiceSchemaError } = moleculer_1.Errors;
+const mongoClient = mongodb_1.MongoClient;
 class FSAdapter {
-  constructor(uri, opts) {
-    this.uri = uri;
-    this.opts = opts;
-  }
-
-  init(broker, service) {
-    this.broker = broker;
-    this.service = service;
-    this.bucketName = this.service.schema.collection || "fs";
-
-    if (!this.uri) {
-      throw new ServiceSchemaError("Missing `uri` definition!");
+    constructor(uri, opts) {
+        this.uri = uri;
+        this.opts = opts;
     }
-  }
-
-  async connect() {
-    this.client = new MongoClient(
-      this.uri,
-      Object.assign({ useUnifiedTopology: true }, this.opts)
-    );
-    return this.client.connect().then(() => {
-      this.db = this.client.db(this.dbName);
-
-      this.bucketFS = new Mongo.GridFSBucket(this.db, {
-        bucketName: this.bucketName,
-      });
-
-      this.service.logger.info("GridFS adapter has connected successfully.");
-
-      /* istanbul ignore next */
-      this.db.on("close", () =>
-        this.service.logger.warn("MongoDB adapter has disconnected.")
-      );
-      this.db.on("error", (err) =>
-        this.service.logger.error("MongoDB error.", err)
-      );
-      this.db.on("reconnect", () =>
-        this.service.logger.info("MongoDB adapter has reconnected.")
-      );
-    });
-  }
-
-  disconnect() {
-    return Promise.resolve();
-  }
-
-  async find(filters) {
-    try {
-      return await this.bucketFS.find(filters).sort( { "metadata.version": -1 } ).toArray();
-    } catch (error) {
-      return error;
-    }
-  }
-
-  findOne(query) {
-    // To be implemented
-    return;
-  }
-
-  findById(fd) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const file = await this.bucketFS.find({filename: fd}).sort( { "metadata.version": -1 } ).toArray();
-        if( file.length > 0 )
-          resolve(this.bucketFS.openDownloadStreamByName(fd));
-        else
-          reject(new MoleculerError("File not found", 404, "ERR_NOT_FOUND"));
-      } catch (error) {
-        reject(error);
-      }
-    })
-  }
-
-  async count(filters = {}) {
-    // To be implemented
-    return;
-  }
-
-  async save(entity, meta) {
-    return new Promise(async(resolve, reject) => {
-      if (!isStream(entity)) reject(new MoleculerError("Entity is not a stream", 400, "E_BAD_REQUEST"));
-
-      const filename = meta.id || meta.filename || uuidv4();
-      const contentType = meta.contentType || mime.lookup(filename);
-
-      if (meta?.$multipart) {
-        delete meta.$multipart;
-      }
-
-      // If filename exists - version it
-      try {
-        meta.version = "1"
-        let file = await this.bucketFS.find({filename: filename}).sort( { "metadata.version": -1 } ).toArray();
-        // Get file latest version and increment to new file
-        if( file.length > 0 && file[0].metadata ){
-          if( file[0].metadata.version )
-            meta.version = String( (parseInt(file[0].metadata.version) || 0) + 1 )
+    init(broker, service) {
+        this.broker = broker;
+        this.service = service;
+        this.bucketName = this.service.schema.collection || "fs";
+        if (!this.uri) {
+            throw new ServiceSchemaError("Missing `uri` definition!", undefined);
         }
-      } catch (error) {}
-
-      let stream = this.bucketFS.openUploadStream(meta.filename, {
-        metadata: meta,
-        contentType: contentType,
-      });
-
-      return await entity
-        .pipe(stream)
-        .on("error", function (error) {
-          reject(error);
-        })
-        .on("finish", function (response) {
-          resolve(response);
+    }
+    async connect() {
+        this.client = new mongoClient(this.uri, Object.assign({ useUnifiedTopology: true }, this.opts));
+        return this.client.connect().then(() => {
+            this.db = this.client.db(this.dbName);
+            this.bucketFS = new mongodb_1.GridFSBucket(this.db, {
+                bucketName: this.bucketName,
+            });
+            this.service.logger.info("GridFS adapter has connected successfully.");
+            this.client.on("close", () => this.service.logger.warn("MongoDB adapter has disconnected."));
+            this.client.on("error", (err) => this.service.logger.error("MongoDB error.", err));
+            this.client.on("reconnect", () => this.service.logger.info("MongoDB adapter has reconnected."));
         });
-    })
-  }
-
-  async updateById(entity, meta) {
-    return await this.save(entity, meta);
-  }
-
-  removeMany(query) {
-    // To Be Implemented.
-  }
-
-  async removeById(_id) {
-    _id = new ObjectId(_id);
-    this.bucketFS.delete(_id);
-    return { id: _id };
-  }
-
-  clear() {
-    // To be implemented
-    return;
-  }
+    }
+    disconnect() {
+        return Promise.resolve();
+    }
+    async find(filters) {
+        try {
+            return await this.bucketFS.find(filters).sort({ "metadata.version": -1 }).toArray();
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    findOne(query) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const file = await this.bucketFS.find(query).sort({ "metadata.version": -1 }).toArray();
+                if (file.length > 0)
+                    resolve(this.bucketFS.openDownloadStream(file[0]._id));
+                else
+                    reject(new MoleculerError("File not found", 404, "ERR_NOT_FOUND"));
+            }
+            catch (error) {
+                reject(error);
+            }
+        });
+    }
+    findById(fd) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const file = await this.bucketFS.find({ filename: fd }).sort({ "metadata.version": -1 }).toArray();
+                if (file.length > 0)
+                    resolve(this.bucketFS.openDownloadStreamByName(fd));
+                else
+                    reject(new MoleculerError("File not found", 404, "ERR_NOT_FOUND"));
+            }
+            catch (error) {
+                reject(error);
+            }
+        });
+    }
+    async count(_filter = {}) {
+        this.service.logger.info("`count` is not currently implemented for GridFSAdapter.");
+    }
+    async save(entity, meta) {
+        if (!(0, is_stream_1.default)(entity))
+            throw new MoleculerError("Entity is not a stream", 400, "E_BAD_REQUEST");
+        const filename = meta.id || meta.filename || (0, uuid_1.v4)();
+        const contentType = meta.contentType || mime_types_1.default.lookup(String(filename));
+        if (meta?.$multipart) {
+            delete meta.$multipart;
+        }
+        try {
+            meta.version = "1";
+            let file = await this.bucketFS.find({ filename: String(filename) }).sort({ "metadata.version": -1 }).toArray();
+            if (file.length > 0 && file[0].metadata) {
+                if (file[0].metadata.version)
+                    meta.version = String((parseInt(file[0].metadata.version) || 0) + 1);
+            }
+        }
+        catch (error) { }
+        let stream = this.bucketFS.openUploadStream(meta.filename, {
+            metadata: meta,
+            contentType: contentType,
+        });
+        return (0, promises_1.pipeline)(entity, stream);
+    }
+    async updateById(entity, meta) {
+        return await this.save(entity, meta);
+    }
+    removeMany(_filter = {}) {
+        this.service.logger.info("`removeMany` is not currently implemented for GridFSAdapter.");
+    }
+    async removeById(_id) {
+        const id = new mongodb_1.ObjectId(_id);
+        this.bucketFS.delete(id);
+        return { id };
+    }
+    clear() {
+        this.service.logger.info("`clear` is not currently implemented for GridFSAdapter.");
+    }
 }
-
-module.exports = FSAdapter;
+exports.default = FSAdapter;

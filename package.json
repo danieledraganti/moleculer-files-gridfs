@@ -1,10 +1,11 @@
 {
   "name": "moleculer-files-gridfs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "GridFS driver for moleculer-files",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "keywords": [
     "moleculer",
@@ -16,10 +17,15 @@
   "dependencies": {
     "is-stream": "^2.0.0",
     "mime-types": "^2.1.24",
-    "mongodb": "^3.3.2",
+    "mongodb": "^6.8.0",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "moleculer": "^0.13.10"
+    "@types/mime-types": "^2.1.4",
+    "@types/mongodb": "^4.0.7",
+    "@types/node": "^20.14.12",
+    "@types/uuid": "^10.0.0",
+    "moleculer": "^0.13.10",
+    "moleculer-files": "keletes/moleculer-files#v0.1.6"
   }
 }
