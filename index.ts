@@ -1,6 +1,7 @@
 "use strict";
 
-import { Db, Filter, GridFSBucket, Document, GridFSFile, MongoClient, MongoClientOptions, ObjectId } from "mongodb";
+import { GridFSBucket, MongoClient, ObjectId } from "mongodb";
+import type { Db, Filter, Document, GridFSFile, MongoClientOptions } from "mongodb";
 import mime from "mime-types";
 import { v4 } from "uuid";
 import isStream from "is-stream";
