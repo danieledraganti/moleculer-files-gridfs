@@ -42,7 +42,7 @@ class FSAdapter implements AdapterSchema {
   async connect() {
     this.client = new mongoClient(
       this.uri,
-      Object.assign({ useUnifiedTopology: true }, this.opts)
+      this.opts
     );
     return this.client.connect().then(() => {
       this.db = this.client.db(this.dbName);
