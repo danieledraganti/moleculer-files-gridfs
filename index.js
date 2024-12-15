@@ -25,7 +25,7 @@ class FSAdapter {
         }
     }
     async connect() {
-        this.client = new mongoClient(this.uri, Object.assign({ useUnifiedTopology: true }, this.opts));
+        this.client = new mongoClient(this.uri, this.opts);
         return this.client.connect().then(() => {
             this.db = this.client.db(this.dbName);
             this.bucketFS = new mongodb_1.GridFSBucket(this.db, {
