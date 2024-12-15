@@ -1,6 +1,6 @@
 {
   "name": "moleculer-files-gridfs",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "GridFS driver for moleculer-files",
   "main": "index.js",
   "scripts": {
