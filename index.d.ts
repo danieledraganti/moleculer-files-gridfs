@@ -1,5 +1,6 @@
 /// <reference types="node" />
-import { Db, Filter, GridFSBucket, Document, GridFSFile, MongoClient, MongoClientOptions, ObjectId } from "mongodb";
+import { GridFSBucket, MongoClient, ObjectId } from "mongodb";
+import type { Db, Filter, Document, GridFSFile, MongoClientOptions } from "mongodb";
 import type { Service, ServiceBroker } from "moleculer";
 import type { AdapterSchema } from "moleculer-files";
 declare class FSAdapter implements AdapterSchema {
@@ -29,4 +30,3 @@ declare class FSAdapter implements AdapterSchema {
     clear(): void;
 }
 export default FSAdapter;
-//# sourceMappingURL=index.d.ts.map
